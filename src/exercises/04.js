@@ -11,6 +11,13 @@ import fetchPokemon from '../fetch-pokemon'
 // 🐨 return your context provider with the value assigned to what you get back from useReducer
 // 💰 make sure you forward the props.children!
 
+const PokemonCacheContext = React.createContext()
+
+function PokemonCacheProvider(props) {
+  const [cache, dispatch] = React.useReducer(pokemonCacheReducer, {})
+  return <PokemonCacheContext.Provider value={[cache, dispatch]} {...props} />
+}
+
 function pokemonCacheReducer(state, action) {
   switch (action.type) {
     case 'ADD_POKEMON': {
@@ -24,7 +31,7 @@ function pokemonCacheReducer(state, action) {
 
 function PokemonInfo({pokemonName}) {
   // 💣 remove the useReducer here
-  const [cache, dispatch] = React.useReducer(pokemonCacheReducer, {})
+  const [cache, dispatch] = React.useContext(PokemonCacheContext)
   // 🐨 get the cache and dispatch from useContext with PokemonCacheContext
   const cachedPokemon = cache[pokemonName]
 
@@ -71,7 +78,7 @@ function PokemonInfo({pokemonName}) {
 
 function PreviousPokemon({onSelect}) {
   // 🐨 get the cache from useContext with PokemonCacheContext
-  const cache = {}
+  const [cache] = React.useContext(PokemonCacheContext)
   return (
     <div>
       Previous Pokemon
@@ -90,12 +97,14 @@ function PokemonSection({onSelect, submittedPokemon}) {
   // 🐨 wrap this in the PokemonCacheProvider so the PreviousPokemon
   // and PokemonInfo components have access to that context.
   return (
-    <div style={{display: 'flex'}}>
-      <PreviousPokemon onSelect={onSelect} />
-      <div style={{marginLeft: 10}} data-testid="pokemon-display">
-        <PokemonInfo pokemonName={submittedPokemon} />
+    <PokemonCacheProvider>
+      <div style={{display: 'flex'}}>
+        <PreviousPokemon onSelect={onSelect} />
+        <div style={{marginLeft: 10}} data-testid="pokemon-display">
+          <PokemonInfo pokemonName={submittedPokemon} />
+        </div>
       </div>
-    </div>
+    </PokemonCacheProvider>
   )
 }
 

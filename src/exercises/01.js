@@ -2,9 +2,23 @@
 
 import React from 'react'
 
+const INCREMENT = 'INCREMENT'
+const DECREMENT = 'DECREMENT'
+
+function countReducer(currentCount, action) {
+  switch (action.type) {
+    case INCREMENT:
+      return currentCount + action.step
+    case DECREMENT:
+      return currentCount - action.step
+    default:
+      return currentCount
+  }
+}
+
 function Counter({step = 1, initialCount = 0}) {
   // 🐨 replace React.useState with React.useReducer.
-  const [count, setCount] = React.useState(initialCount)
+  const [count, dispatch] = React.useReducer(countReducer, initialCount)
   // 🦉 you can inline your reducer function as the first argument to
   // React.useReducer (this is especially useful if the reducer function is
   // configurable via props), but more often you'll find people place the
@@ -12,8 +26,15 @@ function Counter({step = 1, initialCount = 0}) {
 
   // 💰 you can write your reducer so you don't have to make any changes
   // to the next two lines of code!
-  const increment = () => setCount(c => c + step)
-  return <button onClick={increment}>{count}</button>
+  const increment = () => dispatch({type: INCREMENT, step})
+  const decrement = () => dispatch({type: DECREMENT, step})
+  return (
+    <>
+      <h1>Count: {count}</h1>
+      <button onClick={increment}>Increment</button>
+      <button onClick={decrement}>Decrement</button>
+    </>
+  )
 }
 
 ////////////////////////////////////////////////////////////////////

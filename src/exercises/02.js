@@ -3,6 +3,12 @@
 import React from 'react'
 import fetchPokemon from '../fetch-pokemon'
 
+const TYPES = {
+  LOADING: 'LOADING',
+  FETCHED: 'FETCHED',
+  ERROR: 'ERROR',
+}
+
 // 🐨 define your pokemonReducer here.
 // 💰 Might I suggest the following action types:
 //   LOADING
@@ -11,14 +17,56 @@ import fetchPokemon from '../fetch-pokemon'
 // 🦉 it's a good idea to add a default case handler that throws an error if
 // an unsupported action type is supplied. That way you avoid typo issues!
 
+// function useAsync(asyncCallback, dependencies = []) {
+//   React.useEffect(() => {
+//     const result = async function() {
+//       return await asyncCallback()
+//     }
+//     result()
+//   }, dependencies)
+// }
+
+function reducer(previousState, action) {
+  switch (action.type) {
+    case TYPES.LOADING:
+      return {
+        ...previousState,
+        loading: true,
+        errror: null,
+        pokemon: null,
+      }
+    case TYPES.FETCHED:
+      return {
+        ...previousState,
+        loading: false,
+        errror: null,
+        pokemon: action.payload.pokemon,
+      }
+    case TYPES.ERROR:
+      return {
+        ...previousState,
+        loading: false,
+        errror: action.payload.error,
+        pokemon: null,
+      }
+    default:
+      throw new Error(`This type is not supported: ${action.type}`)
+  }
+}
+
 function PokemonInfo({pokemonName}) {
+  const [{loading, error, pokemon}, dispatch] = React.useReducer(reducer, {
+    loading: false,
+    pokemon: null,
+    error: null,
+  })
   // 🐨 add a React.useReducer right here.
   // 💰 your initial state could be something like: {pokemon: null, loading: false, error: null}
 
   // 💣 destroy all three of these useStates
-  const [pokemon, setPokemon] = React.useState(null)
-  const [loading, setLoading] = React.useState(false)
-  const [error, setError] = React.useState(null)
+  // const [pokemon, setPokemon] = React.useState(null)
+  // const [loading, setLoading] = React.useState(false)
+  // const [error, setError] = React.useState(null)
 
   React.useEffect(() => {
     if (!pokemonName) {
@@ -26,24 +74,33 @@ function PokemonInfo({pokemonName}) {
     }
     // 🐨 dispatch a LOADING action here
     // 💣 remove all these sets
-    setLoading(true)
-    setError(null)
-    setPokemon(null)
+    dispatch({type: TYPES.LOADING})
+    // setLoading(true)
+    // setError(null)
+    // setPokemon(null)
+
+    // const pokemon = useAsync(() => {
+    //   if (!pokemonName) return Promise.resolve(null)
+    //   return fetchPokemon(pokemonName)
+    // }, [pokemonName])
+
     fetchPokemon(pokemonName).then(
       pokemon => {
         // 🐨 dispatch a LOADED action here
         // 💰 you can pass the pokemon as part of the action you dispatch: dispatch({type: 'LOADED', pokemon})
         // 💣 remove all these sets
-        setLoading(false)
-        setError(null)
-        setPokemon(pokemon)
+        dispatch({type: TYPES.FETCHED, payload: {pokemon}})
+        // setLoading(false)
+        // setError(null)
+        // setPokemon(pokemon)
       },
       error => {
+        dispatch({type: TYPES.ERROR, payload: {error}})
         // 🐨 dispatch an ERROR action here
         // 💣 remove all these sets
-        setLoading(false)
-        setError(error)
-        setPokemon(null)
+        // setLoading(false)
+        // setError(error)
+        // setPokemon(null)
       },
     )
   }, [pokemonName])
