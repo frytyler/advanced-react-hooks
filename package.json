@@ -19,7 +19,7 @@
     "dequal": "^1.0.0",
     "history": "^4.9.0",
     "mq-polyfill": "^1.1.8",
-    "node-fetch": "^2.5.0",
+    "node-fetch": "^2.6.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "stop-runaway-react-effects": "^1.2.0"
